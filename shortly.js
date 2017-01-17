@@ -3,7 +3,6 @@ var util = require('./lib/utility');
 var partials = require('express-partials');
 var bodyParser = require('body-parser');
 
-
 var db = require('./app/config');
 var Users = require('./app/collections/users');
 var User = require('./app/models/user');
@@ -32,13 +31,19 @@ function(req, res) {
 app.get('/signup',
 function(req, res) {
   res.render('signup');
-  console.log('Request body:', req.body);
 });
 
 app.post('/signup',
 function(req, res) {
+  // db.run('INSERT INTO users VALUES (" + req.body + "', function (err, row) {
+  //   if (err) {
+  //     throw err;
+  //   } else {
+  //     console.log('SUCCESS');
+  //   }
+  // });
   console.log('Post Request body:', req.body);
-  
+
 });
 
 app.get('/', 
