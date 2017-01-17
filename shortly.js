@@ -32,6 +32,13 @@ function(req, res) {
 app.get('/signup',
 function(req, res) {
   res.render('signup');
+  console.log('Request body:', req.body);
+});
+
+app.post('/signup',
+function(req, res) {
+  console.log('Post Request body:', req.body);
+  
 });
 
 app.get('/', 
