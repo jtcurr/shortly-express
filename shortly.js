@@ -10,6 +10,7 @@ var User = require('./app/models/user');
 var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
+var Authenticate = require('./lib/authenticate');
 
 var app = express();
 
@@ -23,21 +24,41 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
+app.get('/login',
+function(req, res) {
+  res.render('login');
+});
+
+app.get('/signup',
+function(req, res) {
+  res.render('signup');
+});
+
 app.get('/', 
 function(req, res) {
+  //check if user is logged in
+  //if yes,
+  Authenticate.checkUser(req, res);
+  //else render login page
+  // app.use('/', express.static(__dirname + '/login'));
+  // res.redirect('/login');
   res.render('index');
+  
 });
 
 app.get('/create', 
 function(req, res) {
+  Authenticate.checkUser(req, res);
   res.render('index');
 });
 
 app.get('/links', 
 function(req, res) {
+  Authenticate.checkUser(req, res);
   Links.reset().fetch().then(function(links) {
     res.status(200).send(links.models);
   });
+  // res.redirect('login');
 });
 
 app.post('/links', 
@@ -87,6 +108,7 @@ function(req, res) {
 app.get('/*', function(req, res) {
   new Link({ code: req.params[0] }).fetch().then(function(link) {
     if (!link) {
+      // console.log('i am here at bottom of shortly.js');
       res.redirect('/');
     } else {
       var click = new Click({
