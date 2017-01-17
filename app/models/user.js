@@ -8,24 +8,18 @@ var User = db.Model.extend({
   tableName: 'users',
 
   initialize: function(model) {
-    console.log('inside the new User ', model);  
+    console.log('John: Inside the new User ', model.password);  
     var saltRounds = 10;
     var plainPassword = model.password;
 
-    bcrypt.genSalt(saltRounds, function (err, salt) {
-      bcrypt.hash(plainPassword, salt, function (err, hash) {
-        
+    this.on('creating', function() {
+      bcrypt.genSalt(saltRounds, function (err, salt) {
+        bcrypt.hash(plainPassword, salt, null, function (err, hash) {
+        //hash is going to be the encrypted password
+        });
       });
     });
-    // handle encription here
-    // read www.npmjs.com/package/bcrypt
-    this.on('creating', function() {
-    });
   }
-
-
-
-
 });
 
 module.exports = User;
