@@ -35,14 +35,30 @@ function(req, res) {
 
 app.post('/signup',
 function(req, res) {
-  // db.run('INSERT INTO users VALUES (" + req.body + "', function (err, row) {
-  //   if (err) {
-  //     throw err;
-  //   } else {
-  //     console.log('SUCCESS');
-  //   }
-  // });
-  console.log('Post Request body:', req.body);
+  res.render('signup');
+
+  console.log('Hanyen: Post Request body:', req.body);
+  // var uri = req.body.url;
+  var userName = req.body.username;
+  var passWord = req.body.password;
+
+  new User({ username: userName, password: passWord }).fetch().then(function() {
+    console.log('Hanyen: I am in new User function');
+    // if (found) {
+    //   res.status(200).send(found.attributes);
+    //   console.log('found.attributes:', found.attributes);
+    //   //check if username exist, if yes throw an error
+    // } else {
+    console.log('Hanyen: Just before Users.create.then()');
+    Users.create({
+      username: userName,
+      password: passWord
+    })
+    .then(function() {
+      res.status(200);
+    });
+    //}
+  });
 
 });
 
