@@ -9,7 +9,8 @@ var User = require('./app/models/user');
 var Links = require('./app/collections/links');
 var Link = require('./app/models/link');
 var Click = require('./app/models/click');
-var Authenticate = require('./lib/authenticate');
+
+var bcrypt = require('bcrypt-nodejs');
 
 var app = express();
 
@@ -23,68 +24,37 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(__dirname + '/public'));
 
 
-app.get('/login',
-function(req, res) {
-  res.render('login');
+// session support
+var session = require('express-session');
+app.use(session({
+  secret: 'shhh, it\'s a secret',
+  resave: false,
+  saveUninitialized: true
+}));
+
+app.get('/', util.checkUser, function(req, res) {
+  res.render('index');
 });
 
-app.get('/signup',
-function(req, res) {
-  res.render('signup');
+app.get('/create', util.checkUser, function(req, res) {
+  res.render('index');
 });
 
-app.post('/signup',
-function(req, res) {
-
-
-  console.log('Hanyen: Post Request body:', req.body);
-  var username = req.body.username;
-  var password = req.body.password;
-
-  new User({ username: userName, password: passWord }).then(function(found) {
-    if (found) {
-      // res.status(200).send(found.attributes);
-      //check if username exist, if yes throw an error
-    } else {
-      Users.create({
-        username: username,
-        password: password
-      })
-      .then(function() {
-        res.status(200);
-        // res.redirect(200, '/');
-      });
-    }
-    res.render('signup');
-  });
-});
-
-app.get('/', 
-function(req, res) {
-  //check if user is logged in
-  //if yes,
-  //else render login page
-  res.redirect('/login');
-});
-
-app.get('/create', 
-function(req, res) {
-  res.redirect('/login');
-});
-
-app.get('/links', 
+app.get('/links', util.checkUser, 
 function(req, res) {
   Links.reset().fetch().then(function(links) {
     //res.status(200);
     //if user is logged in
     //send(links.models);
       //else
+
+    //res.status(200).send(links.models)
     res.redirect('/login');
   });
  
 });
 
-app.post('/links', 
+app.post('/links', util.checkUser,
 function(req, res) {
   var uri = req.body.url;
 
@@ -115,6 +85,47 @@ function(req, res) {
     }
   });
 });
+// =============
+
+
+app.get('/login',
+function(req, res) {
+  res.render('login');
+});
+
+app.get('/signup',
+function(req, res) {
+  res.render('signup');
+});
+
+app.post('/signup',
+function(req, res) {
+
+  var username = req.body.username;
+  var password = req.body.password;
+
+  new User({ username: username}).fetch().then(function(user) {
+    if (!user) {
+      bcrypt.hash(password, null, null, function (err, salt) {
+        Users.create({
+          username: username,
+          password: hash
+        }).then(function(user) {
+          util.createSession(req, res, user);
+        });
+      });
+    } else {
+      //user exists
+      alert('User already exists');
+      res.redirect('/signup');
+    }
+
+  });
+});
+
+
+
+
 
 /************************************************************/
 // Write your authentication routes here
