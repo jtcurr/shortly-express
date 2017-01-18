@@ -38,29 +38,23 @@ function(req, res) {
 
 
   console.log('Hanyen: Post Request body:', req.body);
-  // var uri = req.body.url;
-  var userName = req.body.username;
-  var passWord = req.body.password;
+  var username = req.body.username;
+  var password = req.body.password;
 
-  new User({ username: userName, password: passWord }).fetch().then(function(found) {
-    console.log('Hanyen: I am in new User function');
+  new User({ username: userName, password: passWord }).then(function(found) {
     if (found) {
       // res.status(200).send(found.attributes);
-      // console.log('found.attributes:', found.attributes);
       //check if username exist, if yes throw an error
     } else {
-      console.log('Hanyen: Just before Users.create.then()');
       Users.create({
-        username: userName,
-        password: passWord
+        username: username,
+        password: password
       })
       .then(function() {
         res.status(200);
         // res.redirect(200, '/');
       });
     }
-    //}
-  // });
     res.render('signup');
   });
 });
@@ -70,27 +64,22 @@ function(req, res) {
   //check if user is logged in
   //if yes,
   //else render login page
-  // app.use('/', express.static(__dirname + '/login'));
-  // res.redirect('/login');
-  // res.render('index');
-  // Authenticate.checkUser(req, res);
   res.redirect('/login');
 });
 
 app.get('/create', 
 function(req, res) {
-  //res.redirect('/login');
   res.redirect('/login');
 });
 
 app.get('/links', 
 function(req, res) {
   Links.reset().fetch().then(function(links) {
-    res.status(200);
+    //res.status(200);
     //if user is logged in
-    send(links.models);
+    //send(links.models);
       //else
-    // res.redirect('/login');
+    res.redirect('/login');
   });
  
 });
