@@ -4,22 +4,21 @@ var Promise = require('bluebird');
 
 var User = db.Model.extend({
   tableName: 'users',
-
-  initialize: function(model) {
-    console.log('John: Inside the new User ', model.password);  
-    var saltRounds = 10;
-    var plainPassword = model.password;
-
-    this.on('creating', function() {
-      bcrypt.genSalt(saltRounds, function (err, salt) {
-        bcrypt.hash(plainPassword, salt, null, function (err, hash) {
-          console.log('hash value', hash);
-          db.transaction(function(tx) {
-            tx.executeSql('INSERT INTO users (username, password) VALUES (?, ?)', [model.username, model.password]);
-          });
-        });
-      });
+  hasTimestamps: true,
+  initialize: function() {
+    this.on('creating', this.hashPassword);
+  },
+  comparePassword: function(attemptedPassword, callback) {
+    bcrypt.compare(attemptedPassword, this.get('password'), function(err, isMatch) {
+      callback(isMatch);
     });
+  },
+  hashPassword: function() {
+    var cipher = Promise.promisify(bcrypt.hash);
+    return cipher(this.get('password'), null, null).bind(this)
+      .then(function(hash) {
+        this.set('password', hash);
+      });
   }
 });
 

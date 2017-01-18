@@ -43,13 +43,11 @@ app.get('/create', util.checkUser, function(req, res) {
 app.get('/links', util.checkUser, 
 function(req, res) {
   Links.reset().fetch().then(function(links) {
-    //res.status(200);
-    //if user is logged in
-    //send(links.models);
+    res.status(200).send(links.models);
       //else
 
     //res.status(200).send(links.models)
-    res.redirect('/login');
+    //res.redirect('/login');
   });
  
 });
@@ -85,12 +83,45 @@ function(req, res) {
     }
   });
 });
-// =============
+
+
+/************************************************************/
+// Write your authentication routes here
+/************************************************************/
 
 
 app.get('/login',
 function(req, res) {
   res.render('login');
+});
+
+app.post('/login',
+function(req, res) {
+
+  var username = req.body.username;
+  var password = req.body.password;
+
+  new User({username: username}).fetch().then(function(user) {
+    if (!user) {
+      res.redirect('/login');
+    } else {
+      //user exists
+      bcrypt.compare(password, user.get('password'), function(err, match) {
+        if (match) {
+          util.createSession(req, res, user);
+        } else {
+          res.redirect('/login');
+        }
+      });
+      // user.comparePassword(password, function(match) {
+      //   if (match) {
+      //     until.createSessions(req, res, user);
+      //   } else {
+      //     res.redirect('/login');
+      //   }
+      // });
+    }
+  });
 });
 
 app.get('/signup',
@@ -103,10 +134,14 @@ function(req, res) {
 
   var username = req.body.username;
   var password = req.body.password;
-
-  new User({ username: username}).fetch().then(function(user) {
+  console.log('username: ', username);
+  console.log('password: ', password);
+  new User({username: username}).fetch().then(function(user) {
+    
     if (!user) {
-      bcrypt.hash(password, null, null, function (err, salt) {
+      bcrypt.hash(password, null, null, function (err, hash) {
+        console.log('Hanyen: I am inside bcrypt');
+        
         Users.create({
           username: username,
           password: hash
@@ -116,20 +151,13 @@ function(req, res) {
       });
     } else {
       //user exists
-      alert('User already exists');
+      console.log('Account already exists');
       res.redirect('/signup');
     }
 
   });
 });
 
-
-
-
-
-/************************************************************/
-// Write your authentication routes here
-/************************************************************/
 
 
 

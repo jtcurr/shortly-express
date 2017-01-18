@@ -72,11 +72,11 @@ describe('', function() {
       });
   });
 
-  xdescribe('Link creation:', function() {
+  describe('Link creation:', function() {
 
     var requestWithSession = request.defaults({jar: true});
 
-    xbeforeEach(function(done) {
+    beforeEach(function(done) {
       // create a user that we can then log-in with
       new User({
         'username': 'Phillip',
@@ -242,7 +242,7 @@ describe('', function() {
       });
     });
 
-    xit('Redirects to login page if a user tries to see all of the links and is not signed in', function(done) {
+    it('Redirects to login page if a user tries to see all of the links and is not signed in', function(done) {
       request('http://127.0.0.1:4568/links', function(error, res, body) {
         expect(res.req.path).to.equal('/login');
         done();
